@@ -1,14 +1,9 @@
-[data-testid=metric-container] {
+[data-testid=stMetric] {
     box-shadow: 0 0 4px #cccccc;
     padding: 10px;
 }
 
-.plot-container>div {
-    box-shadow: 0 0 4px #cccccc;
-    padding: 10px;
-    
-   
-}
+
 
 div[data-testid="stExpander"] div[role="button"] p
 {
