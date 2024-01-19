@@ -120,7 +120,7 @@ df['tipo_dia'] = df['dia_da_semana'].apply(classificar_dia)
 quantidade_acidentes_por_tipo_dia = df['tipo_dia'].value_counts()
 
 #Tratamento de dados para gráfico de mapa
-local_path = 'data/bvisualizacao_fcbairro.geojson'
+local_path = 'data/bairros.geojson'
 with open(local_path, 'r', encoding='utf-8') as file:
     state_geo = json.load(file)
 acidentes_por_bairro = df.groupby('bairro')['vitimas'].count()
@@ -163,14 +163,10 @@ with col11:
     
 
 with col12:
-    fig_vitimas = px.pie(vitimas, values='vitimas', names=vitimas.index, color_discrete_sequence=px.colors.sequential.Blues_r, title='Vítimas')
-    fig_vitimas.update_layout(xaxis=dict(showgrid=False), yaxis=dict(showgrid=False,showticklabels=False))
-    st.plotly_chart(fig_vitimas, use_container_width=True, theme="streamlit") 
-
-fig_mapa = px.choropleth(acidentes_por_bairro, geojson=state_geo, color="vitimas", locations="bairro", featureidkey="properties.EBAIRRNOME", projection="mercator")
-fig_mapa.update_geos(fitbounds="geojson", visible=True)
-fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-st.plotly_chart(fig_mapa, use_container_width=True, theme="streamlit") 
-
-
-
+    # fig_vitimas = px.pie(vitimas, values='vitimas', names=vitimas.index, color_discrete_sequence=px.colors.sequential.Blues_r, title='Vítimas')
+    # fig_vitimas.update_layout(xaxis=dict(showgrid=False), yaxis=dict(showgrid=False,showticklabels=False))
+    # st.plotly_chart(fig_vitimas, use_container_width=True, theme="streamlit") 
+    fig_mapa = px.choropleth(acidentes_por_bairro, geojson=state_geo, color="vitimas", locations="bairro", featureidkey="properties.EBAIRRNOME", projection="mercator",title='Acidentes por Bairro')
+    fig_mapa.update_geos(fitbounds="geojson", visible=False)
+    fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    st.plotly_chart(fig_mapa, use_container_width=True, theme="streamlit") 
