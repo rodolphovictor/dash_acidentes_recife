@@ -19,16 +19,29 @@ st.sidebar.header("Filtros")
 
 df = pd.read_csv("acidentes2022.csv", sep=';')
 
+df['data'] = pd.to_datetime(df['data'])
+df['mes'] = df['data'].dt.month_name()
+nomes_mes = {"January": "Janeiro","February": "Fevereiro","March": "Março","April": "Abril","May": "Maio","June": "Junho","July": "Julho","August": "Agosto","September": "Setembro","October": "Outubro","November": "Novembro","December": "Dezembro"}
+df['mes'] = df['mes'].apply(lambda mes: nomes_mes[mes])
+meses_ordem = pd.CategoricalDtype(categories=['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'], ordered=True)
+df['mes'] = df['mes'].astype(meses_ordem)
+df['mes_num'] = df['data'].dt.month
+meses_dict = {1: 'Janeiro',2: 'Fevereiro',3: 'Março',4: 'Abril',5: 'Maio',6: 'Junho',7: 'Julho',8: 'Agosto',9: 'Setembro',10: 'Outubro',11: 'Novembro',12: 'Dezembro'}
+
 categorias = list(df['natureza'].unique())
 categorias.append('TODAS')
-categoria = st.sidebar.selectbox('Selecione a natureza do acidente', options = categorias,index=None, placeholder="Selecione uma opção:")
+default_index = categorias.index('TODAS')
+categoria = st.sidebar.selectbox('Selecione a natureza do acidente', options = categorias,index=default_index, placeholder="Selecione uma opção:")
 
-if categoria == 'COM VÍTIMA':
-    df = df[df['natureza'] == 'COM VÍTIMA']
-elif categoria == 'SEM VÍTIMA':
-    df = df[df['natureza'] == 'SEM VÍTIMA']
-elif categoria == 'VÍTIMA FATAL':
-    df = df[df['natureza'] == 'VÍTIMA FATAL']
+
+if categoria == 'TODAS':
+    df = df
+else:
+    df = df[df['natureza'] == categoria]
+
+selected_range = st.sidebar.select_slider('Selecione um intervalo de meses', options=range(1, 13),value=(1, 12),format_func=lambda x: meses_dict[x])
+
+df = df[(df['mes_num'] >= selected_range[0]) & (df['mes_num'] <= selected_range[1])]
 
 df = df.drop(columns=['hora', 'numero','detalhe_endereco_acidente','complemento', 'num_semaforo', 'sentido_via','velocidade_max_via', 'divisao_via1', 'divisao_via2', 'divisao_via3' ])
 
@@ -81,12 +94,7 @@ with col8:
 st.markdown(f"<h4>Além dos <span style='font-size:1.5em;'>{soma_pedestre}</span> pedestres que também se envolveram em acidentes em 2022 no Recife.</h4>", unsafe_allow_html=True)
 
 #Tratamento de dados para o gráfico de Linha
-df['data'] = pd.to_datetime(df['data'])
-df['mes'] = df['data'].dt.month_name()
-nomes_mes = {"January": "Janeiro","February": "Fevereiro","March": "Março","April": "Abril","May": "Maio","June": "Junho","July": "Julho","August": "Agosto","September": "Setembro","October": "Outubro","November": "Novembro","December": "Dezembro"}
-df['mes'] = df['mes'].apply(lambda mes: nomes_mes[mes])
-meses_ordem = pd.CategoricalDtype(categories=['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'], ordered=True)
-df['mes'] = df['mes'].astype(meses_ordem)
+
 df = df.sort_values(by='mes')
 acidentes_por_mes = df['mes'].value_counts().sort_index()
 media_acidentes_por_mes = acidentes_por_mes.rolling(window=2).mean()
@@ -170,3 +178,5 @@ with col12:
     fig_mapa.update_geos(fitbounds="geojson", visible=False)
     fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
     st.plotly_chart(fig_mapa, use_container_width=True, theme="streamlit") 
+
+st.dataframe(df)
