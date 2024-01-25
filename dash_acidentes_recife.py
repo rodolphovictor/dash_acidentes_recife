@@ -178,5 +178,3 @@ with col12:
     fig_mapa.update_geos(fitbounds="geojson", visible=False)
     fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
     st.plotly_chart(fig_mapa, use_container_width=True, theme="streamlit") 
-
-st.dataframe(df)
